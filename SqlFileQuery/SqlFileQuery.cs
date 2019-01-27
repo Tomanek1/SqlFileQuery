@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -112,14 +112,14 @@ namespace SqlFileQuery
         }
 
         //[DataObjectMethod(DataObjectMethodType.Insert | DataObjectMethodType.Update | DataObjectMethodType.Delete)]
-        protected virtual int ExecuteNonQuery(IDbCommand cmd)
+        public virtual int ExecuteNonQuery(IDbCommand cmd)
         {
             return ExecuteNonQuery(cmd, false);
 
         }
 
         //[DataObjectMethod(DataObjectMethodType.Insert | DataObjectMethodType.Update | DataObjectMethodType.Delete)]
-        protected virtual int ExecuteNonQuery(IDbCommand cmd, bool manualClose)
+        public virtual int ExecuteNonQuery(IDbCommand cmd, bool manualClose)
         {
             //this.ValidateFileContent(this.GetCommandText(cmd.CommandText));
             if (sqlConnection.State != ConnectionState.Open)
@@ -141,7 +141,7 @@ namespace SqlFileQuery
         /// <typeparam name="T">Anonymní třída</typeparam>
         /// <param name="cmd">Existující příkaz do kterého budou přidány parametry</param>
         /// <param name="radky"></param>
-        protected void AddMultipleParameters<T>(IDbCommand cmd, IEnumerable<T> radky)
+        public void AddMultipleParameters<T>(IDbCommand cmd, IEnumerable<T> radky)
         {
             if (radky.Count() > 999)
                 throw new ArgumentOutOfRangeException("Nelze vložit víc než 999 záznamů najednou");
@@ -192,7 +192,7 @@ namespace SqlFileQuery
             cmd.Parameters.Add(myParam);
         }
 
-        protected void CloseConnection()
+        public void CloseConnection()
         {
             sqlConnection.Close();
         }
