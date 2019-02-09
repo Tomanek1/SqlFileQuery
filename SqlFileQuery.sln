@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlFileQuery", "SqlFileQuery\SqlFileQuery.csproj", "{0131F4D2-F0B8-4A9D-90C8-AEB3F3510105}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlFileQuery.Lib", "SqlFileQuery.Lib\SqlFileQuery.Lib.csproj", "{0131F4D2-F0B8-4A9D-90C8-AEB3F3510105}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
