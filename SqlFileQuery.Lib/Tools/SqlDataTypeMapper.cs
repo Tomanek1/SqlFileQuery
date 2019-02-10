@@ -4,7 +4,7 @@ using System.Data;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace SqlFileQuery.Tools
+namespace SqlFileQueryLib.Tools
 {
     public static class SqlDataTypeMapper
     {

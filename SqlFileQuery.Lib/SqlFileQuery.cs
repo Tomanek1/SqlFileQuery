@@ -8,9 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using SqlFileQuery.Tools;
+using SqlFileQueryLib.Tools;
 
-namespace SqlFileQuery.Lib
+namespace SqlFileQueryLib
 {
     /// <summary>
     /// Třída pro přímý přístup k SQL Databázi.
