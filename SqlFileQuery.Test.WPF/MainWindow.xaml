@@ -1,0 +1,27 @@
+﻿<Window x:Class="SqlFileQuery.Test.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SqlFileQuery.Test.WPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+	<Grid>
+		<Border Padding="5">
+			<StackPanel HorizontalAlignment="Center"  Height="277" Margin="176,62,192,81" VerticalAlignment="Center" Width="424">
+				<Button Margin="3" Content="SELECT Scalar" />
+				<Button Margin="3" Content="SELECT Table" Click="Button_Click_1" />
+				<Button Margin="3" Content="SELECT Grid" Click="Button_Click" />
+
+				<Button Margin="3" Content="INSERT Single Value" />
+				<Button Margin="3" Content="INSERT Multiple" />
+
+				<Button Margin="3" Content="UPDATE Single " />
+				<Button Margin="3" Content="UPDATE Multiple " />
+
+				<Button Margin="3" Content="DELETE Single " />
+				<Button Margin="3" Content="DELETE Multiple " />
+			</StackPanel>
+			</Border>
+	</Grid>
+</Window>
