@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SqlFileQuery.Test.WPF.Properties
+namespace SqlFileQueryLib.Test.WPF.Properties
 {
 
 

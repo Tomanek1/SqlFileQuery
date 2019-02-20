@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyVersion>0.2.2.0</AssemblyVersion>
-    <Version>0.2.2</Version>
+    <AssemblyVersion>0.2.4.0</AssemblyVersion>
+    <Version>0.2.4</Version>
     <Authors>Tomanek1</Authors>
     <AssemblyName>SqlFileQueryLib</AssemblyName>
     <Product>SqlFileQuery</Product>
     <PackageId>SqlFileQuery</PackageId>
     <RootNamespace>SqlFileQueryLib</RootNamespace>
-    <FileVersion>0.2.2.0</FileVersion>
+    <FileVersion>0.2.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
