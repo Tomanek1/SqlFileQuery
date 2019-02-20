@@ -10,8 +10,8 @@
 		<Border Padding="5">
 			<StackPanel HorizontalAlignment="Center"  Height="277" Margin="176,62,192,81" VerticalAlignment="Center" Width="424">
 				<Button Margin="3" Content="SELECT Scalar" />
-				<Button Margin="3" Content="SELECT Table" />
-				<Button Margin="3" Content="SELECT Grid" />
+				<Button Margin="3" Content="SELECT Table" Click="Button_Click_1" />
+				<Button Margin="3" Content="SELECT Grid" Click="Button_Click" />
 
 				<Button Margin="3" Content="INSERT Single Value" />
 				<Button Margin="3" Content="INSERT Multiple" />
