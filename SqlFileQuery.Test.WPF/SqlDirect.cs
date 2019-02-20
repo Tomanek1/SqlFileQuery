@@ -6,18 +6,18 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using SqlFileQuery.Lib;
+using SqlFileQueryLib;
 
-namespace SqlFileQuery.Test.WPF
+namespace SqlFileQueryLib.Test.WPF
 {
 	public class SqlDirect
 	{
-		SqlFileQuery.Lib.SqlFileQuery sqlFileQuery = null;
+		SqlFileQuery sqlFileQuery = null;
 
 		public SqlDirect()
 		{
 			string con = ConfigurationManager.ConnectionStrings[1].ConnectionString;
-			this.sqlFileQuery = new SqlFileQuery.Lib.SqlFileQuery(new SqlConnection(con), "SqlScripts");
+			this.sqlFileQuery = new SqlFileQuery(new SqlConnection(con), "SqlScripts");
 
 		}
 

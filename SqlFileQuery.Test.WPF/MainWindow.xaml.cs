@@ -12,9 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using SqlFileQuery.Test.WPF;
+using SqlFileQueryLib.Test.WPF;
 
-namespace SqlFileQuery.Test.WPF
+namespace SqlFileQueryLib.Test.WPF
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml

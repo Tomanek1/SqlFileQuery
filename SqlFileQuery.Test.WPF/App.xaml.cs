@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace SqlFileQuery.Test.WPF
+namespace SqlFileQueryLib.Test.WPF
 {
 	/// <summary>
 	/// Interaction logic for App.xaml
