@@ -21,28 +21,63 @@ namespace SqlFileQueryLib.Test.WPF
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		SqlDirect sqlDirect = new SqlDirect();
+		SqlDirectDML sqlDirect = new SqlDirectDML();
+		SqlDirectDemo sqlDirectDemo = new SqlDirectDemo();
+
 		public MainWindow()
 		{
 			InitializeComponent();
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e)
+		private void Btn_SelectScalar_Click(object sender, RoutedEventArgs e)
+		{
+			var n = sqlDirect.SelectScalar();
+		}
+
+		private void Btn_SelectTable_Click(object sender, RoutedEventArgs e)
+		{
+			var n = sqlDirect.SelectTable();
+		}
+
+		private void Btb_SelectGrid_Click(object sender, RoutedEventArgs e)
+		{
+			var n = sqlDirect.SelectGrid();
+		}
+
+		private void Btn_InsertSingle_Click(object sender, RoutedEventArgs e)
+		{
+			var n = sqlDirect.InsertSingle();
+		}
+
+		private void Btn_InsertMultiple_Click(object sender, RoutedEventArgs e)
+		{
+
+			var n = sqlDirect.InsertMultiple();
+		}
+
+		private void Btn_Update_Click(object sender, RoutedEventArgs e)
+		{
+			var n = sqlDirect.Update();
+
+		}
+
+		private void Btn_Delete_Click(object sender, RoutedEventArgs e)
+		{
+			var n = sqlDirect.Delete();
+		}
+
+		private void Btn_DemoMotivation_Click(object sender, RoutedEventArgs e)
 		{
 			try
 			{
-				var n = sqlDirect.GetActivePublishers();
+				var n = sqlDirectDemo.GetDemo();
 			}
 			catch (Exception ex)
 			{
 				string exx = ex.ToString();
 				throw;
 			}
-		}
 
-		private void Button_Click_1(object sender, RoutedEventArgs e)
-		{
-			var n = sqlDirect.Get2();
 		}
 	}
 }

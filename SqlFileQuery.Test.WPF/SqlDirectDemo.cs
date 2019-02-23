@@ -3,30 +3,29 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using SqlFileQueryLib;
 
 namespace SqlFileQueryLib.Test.WPF
 {
-	public class SqlDirect
+	class SqlDirectDemo
 	{
 		SqlFileQuery sqlFileQuery = null;
 
-		public SqlDirect()
+		public SqlDirectDemo()
 		{
 			string con = ConfigurationManager.ConnectionStrings[1].ConnectionString;
 			this.sqlFileQuery = new SqlFileQuery(new SqlConnection(con), "SqlScripts");
 
 		}
 
-		public IEnumerable<object> GetActivePublishers()
+
+		public IEnumerable<object> GetDemo()
 		{
-			SqlCommand cmd = sqlFileQuery.CreateCommand("GetActivePublishers.sql");
+			SqlCommand cmd = sqlFileQuery.CreateCommand("Demo.sql");
 			foreach (var n in sqlFileQuery.Execute(cmd))
 			{
-				yield return new 
+				yield return new
 				{
 					ID = Convert.ToInt32(n[0]),
 					DisplayOnWeb = Convert.ToBoolean(n[1]),
@@ -38,10 +37,23 @@ namespace SqlFileQueryLib.Test.WPF
 			}
 		}
 
-		internal object Get2()
+		public IEnumerable<object> GetDemoInRoot()
 		{
-			SqlCommand cmd = sqlFileQuery.CreateCommand("GetActivePublishers.sql");
-			throw new NotImplementedException();
+			//TODO: Dodělat
+			SqlCommand cmd = sqlFileQuery.CreateCommand("Demo.sql");
+			foreach (var n in sqlFileQuery.Execute(cmd))
+			{
+				yield return new
+				{
+					ID = Convert.ToInt32(n[0]),
+					DisplayOnWeb = Convert.ToBoolean(n[1]),
+					Name = n[2].ToString(),
+					Code = n[3].ToString(),
+					KvadosKey = n[4].ToString(),
+					//CreatedOn = n[5].(),
+				};
+			}
 		}
+
 	}
 }
