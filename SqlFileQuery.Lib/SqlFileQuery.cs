@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
+using SqlFileQueryLib.Helpers;
 using SqlFileQueryLib.Tools;
 
 namespace SqlFileQueryLib
@@ -24,6 +22,13 @@ namespace SqlFileQueryLib
 		private SqlConnection sqlConnection;
 		private Dictionary<string, string> scriptBuffer = new Dictionary<string, string>();
 
+		private readonly ParametrHelper ph = new ParametrHelper();
+		private readonly CommandHelper ch = new CommandHelper();
+		private readonly RepetitiveHelper rh = new RepetitiveHelper();
+
+
+		#region Public Properties
+
 		/// <summary>
 		/// Cesta ze které složky v projektu bude tahat sql scripty
 		/// </summary>
@@ -34,13 +39,9 @@ namespace SqlFileQueryLib
 		/// </summary>
 		public string NamespaceName { get; set; }
 
-		/// <param name="sqlConnection"></param>
-		/// <param name="scriptsPath">Cesta složek v projekt k SQL scriptům. Složky oddělené tečkami</param>
-		public SqlFileQuery(SqlConnection sqlConnection, string scriptsPath)
-		{
-			this.sqlConnection = sqlConnection;
-			this.ScriptsPath = scriptsPath;
-		}
+		#endregion
+
+		#region Public Execution Methods
 
 		/// <summary>
 		/// Načte text SQL dotazu z uvedeného umístění <see cref="SqlFileQuery.ScriptsPath"/> a vytvoří objekt typu <see cref="SqlCommand"/>
@@ -49,20 +50,21 @@ namespace SqlFileQueryLib
 		/// <returns></returns>
 		public SqlCommand CreateCommand(string fileName)
 		{
+			//TODO: Půjde se této metody zbavit a zaimplementovat do Execute metod
 			SqlCommand cmd = sqlConnection.CreateCommand();
 
 			if (!scriptBuffer.ContainsKey(fileName))
-				scriptBuffer.Add(fileName, this.GetCommandText(fileName));
+			{
+				scriptBuffer.Add(fileName, ch.GetCommandText(NamespaceName, ScriptsPath, fileName));
+			}
 
 			cmd.CommandText = scriptBuffer[fileName];
 			return cmd;
 		}
 
-
-		//[DataObjectMethod(DataObjectMethodType.Select, true)]
-		public virtual IEnumerable<object[]> Execute(IDbCommand cmd)
+		public virtual IEnumerable<object[]> ExecuteReader(IDbCommand cmd)
 		{
-			return Execute(cmd, false);
+			return ExecuteReader(cmd, false);
 		}
 
 		/// <summary>
@@ -71,11 +73,13 @@ namespace SqlFileQueryLib
 		/// <param name="cmd"></param>
 		/// <param name="manualClose">Pokud true tak po provedení příkazu neukončí spojení. Je potřeba zavoalt <see cref="CloseConnection"/></param>
 		/// <returns></returns>
-		//[DataObjectMethod(DataObjectMethodType.Select)]
-		protected virtual IEnumerable<object[]> Execute(IDbCommand cmd, bool manualClose)
+		protected virtual IEnumerable<object[]> ExecuteReader(IDbCommand cmd, bool manualClose)
 		{
 			if (sqlConnection.State != ConnectionState.Open)
+			{
 				sqlConnection.Open();
+			}
+
 			object[] o;
 			using (var reader = cmd.ExecuteReader())
 			{
@@ -87,59 +91,63 @@ namespace SqlFileQueryLib
 				}
 			}
 			if (!manualClose)
+			{
 				sqlConnection.Close();
+			}
 		}
 
 		/// <summary>
-		/// Slouží k provedení SELECT dotazu
+		/// Slouží k provedení SELECT dotazu, kde výsledkem je jediný sloupec hodnot typu <typeparamref name="T"/>
 		/// </summary>
 		/// <param name="cmd"></param>
 		/// <param name="manualClose">Pokud true tak po provedení příkazu neukončí spojení. Je potřeba zavoalt <see cref="CloseConnection"/></param>
 		/// <returns></returns>
-		//[DataObjectMethod(DataObjectMethodType.Select)]
-		protected virtual IEnumerable<T> Execute<T>(IDbCommand cmd, bool manualClose)
+		protected virtual IEnumerable<T> ExecuteReader<T>(IDbCommand cmd, bool manualClose) where T : struct
 		{
-			//TODO: provede SQL příkaz kde výstupem metody budo objekty generického typu
-			//if (sqlConnection.State != ConnectionState.Open)
-			//    sqlConnection.Open();
-			//object[] o;
-			//using (var reader = cmd.ExecuteReader())
-			//{
-			//    while (reader.Read())
-			//    {
-			//        o = new object[reader.FieldCount];
-			//        reader.GetValues(o);
-			//        yield return o;
-			//    }
-			//}
-			//if (!manualClose)
-			//    sqlConnection.Close();
-			throw new NotImplementedException();
+			if (sqlConnection.State != ConnectionState.Open)
+				sqlConnection.Open();
+			using (var reader = cmd.ExecuteReader())
+			{
+				if (reader.FieldCount != 1)
+					throw new TargetParameterCountException("Počet sloupců výstupu je > 1");
+
+				while (reader.Read())
+				{
+					object o = reader.GetValue(1);
+					yield return (T)o;
+				}
+			}
+			if (!manualClose)
+				sqlConnection.Close();
 		}
 
-		//[DataObjectMethod(DataObjectMethodType.Insert | DataObjectMethodType.Update | DataObjectMethodType.Delete)]
 		public virtual int ExecuteNonQuery(IDbCommand cmd)
 		{
 			return ExecuteNonQuery(cmd, false);
 
 		}
 
-		//[DataObjectMethod(DataObjectMethodType.Insert | DataObjectMethodType.Update | DataObjectMethodType.Delete)]
 		public virtual int ExecuteNonQuery(IDbCommand cmd, bool manualClose)
 		{
 			//this.ValidateFileContent(this.GetCommandText(cmd.CommandText));
 			if (sqlConnection.State != ConnectionState.Open)
+			{
 				sqlConnection.Open();
-
+			}
 
 			int affected = cmd.ExecuteNonQuery();
 
 			if (!manualClose)
+			{
 				sqlConnection.Close();
+			}
+
 			return affected;
 		}
 
-		#region Public Helper methods
+		#endregion
+
+		#region Public Parameter methods
 
 		/// <summary>
 		/// Přidá do <paramref name="cmd"/>  položky kolekce <paramref name="radky"/> kde jméno parametru bude její název
@@ -151,10 +159,13 @@ namespace SqlFileQueryLib
 		{
 			if (radky.Count() > 999)
 				throw new ArgumentOutOfRangeException("Nelze vložit víc než 999 záznamů najednou");
-			if (!this.ParameterNamesAreCorrect(radky.GetType().GetGenericArguments()[0], this.GetRepeatingPart(cmd.CommandText)))
+			if (cmd == null || string.IsNullOrEmpty(cmd.CommandText))
+				throw new ArgumentException("Nenalezen text příkazu");
+
+			if (!ph.ParameterNamesAreCorrect(radky.GetType().GetGenericArguments()[0], rh.GetRepeatingPart(cmd.CommandText)))
 			{
-				var exception = new ArgumentException("Nazvy propert kolekce se neschoduní s požadovanými. Zobraz si data pro více informací.");
-				foreach (var item in GetMissingParameter(radky.GetType().GetGenericArguments()[0], cmd.CommandText))
+				var exception = new ArgumentException("Nazvy propert kolekce se neschoduní s požadovanými. Zobraz si data pro více informací");
+				foreach (var item in ph.GetMissingParameter(radky.GetType().GetGenericArguments()[0], cmd.CommandText))
 				{
 					exception.Data.Add(item, "Missing");
 				}
@@ -162,9 +173,9 @@ namespace SqlFileQueryLib
 			}
 
 			int counter = 0;
-			string repetitive = this.GetRepeatingPart(cmd.CommandText);
-			var parameters = GetFiltredSqlParametersInString(cmd.CommandText).Select(a => a.Substring(1));
-			string extensionPart = this.DuplicateRepetitivePart(repetitive, radky.Count());
+			string repetitive = rh.GetRepeatingPart(cmd.CommandText);
+			var parameters = ph.GetFiltredSqlParametersInString(cmd.CommandText).Select(a => a.Substring(1));
+			string extensionPart = rh.DuplicateRepetitivePart(repetitive, radky.Count());
 			cmd.CommandText = cmd.CommandText.Replace(repetitive, extensionPart);
 
 			//Načtu si property z první položky
@@ -198,166 +209,35 @@ namespace SqlFileQueryLib
 			cmd.Parameters.Add(myParam);
 		}
 
+		#endregion
+
+		#region Public Extension Functionality Methods
+
 		public void CloseConnection()
 		{
 			sqlConnection.Close();
 		}
+
 		#endregion
 
 
-		#region PrivateMethods
-
-		private bool ParameterNamesAreCorrect(Type type, string cmd)
+		/// <param name="scriptsPath">Cesta složek v projekt k SQL scriptům. Složky oddělené tečkami</param>
+		public SqlFileQuery(string sqlConnection, string scriptsPath)
 		{
-			return GetMissingParameter(type, cmd).Count() == 0;
+			this.sqlConnection = new SqlConnection(sqlConnection);
+			this.ScriptsPath = scriptsPath;
 		}
 
-		private IEnumerable<string> GetMissingParameter(Type type, string cmd)
+		/// <param name="scriptsPath">Cesta složek v projekt k SQL scriptům. Složky oddělené tečkami</param>
+		public SqlFileQuery(SqlConnection sqlConnection, string scriptsPath)
 		{
-			List<string> names = new List<string>();
-			//TODO: Předělat
-			foreach (string item in GetFiltredSqlParametersInString(cmd))
-			{
-				string name = item.Substring(1);//Odeberu @
-
-				foreach (PropertyInfo item2 in type.GetTypeInfo().DeclaredProperties)
-				{
-					if (item2.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase))
-						goto yes;
-
-				}
-				names.Add(name);
-
-				yes:;
-			}
-			return names;
-		}
-
-		private void ValidateFileForMultipleParameters(string commandText)
-		{
-			throw new NotImplementedException();
-		}
-
-		/// <summary>
-		/// Zopakuje <paramref name="repetitive"/> část <paramref name="counter"/> xkrát
-		/// </summary>
-		/// <param name="repetitive">Ta část sql scriptu která má být duplikována</param>
-		/// <param name="counter">Počet zopakování opakovací části</param>
-		/// <returns></returns>
-		private string DuplicateRepetitivePart(string repetitive, int counter)
-		{
-			//Odeberu bílé znaky
-			repetitive = Regex.Replace(repetitive, @"\s+", "");
-			StringBuilder sb = new StringBuilder(repetitive.Length * (counter - 1));
-
-			var parameters = GetSqlParametersInString(repetitive);
-
-			//Počítám od 1 do N
-			for (int i = 1; i <= counter; i++)
-			{
-				if (i != 1)
-					sb.Append(Environment.NewLine + ",");
-
-				string noBracet = "(";
-
-				foreach (var item in parameters)
-				{
-					if (item.Length >= 2 && item.StartsWith("@") && !item.StartsWith("@@"))
-					{
-						noBracet += item + i + ",";
-					}
-					else
-					{
-						noBracet += item + ",";
-					}
-				}
-				noBracet = noBracet.Remove(noBracet.Length - 1);
-				noBracet += ")";
-				sb.Append(noBracet);
-			}
-
-			return sb.ToString();
-		}
-
-
-		/// <summary>
-		/// Vrátí všechny parametry ve vstupním stringu včetně Konstant a @@ proměných. Pro @ volejte <seealso cref="GetFiltredSqlParametersInString"/>
-		/// </summary>
-		/// <param name="source"></param>
-		/// <returns></returns>        
-		private IEnumerable<string> GetSqlParametersInString(string source)
-		{
-			//Najdu všechny proměné (začínající @) 
-			//TODO: šel by udělat lepší regex
-			//Nejprve odeberu závorky, pak rozdělím
-			//TODO: špatný parser. Půjde udělat líp;
-			source = source.Trim();
-			var par = source.Substring(1, source.Length - 2).Split(',');
-			for (int i = 0; i < par.Length; i++)
-			{
-				par[i] = par[i].Trim();
-			}
-			return par;
-
-		}
-
-		private IEnumerable<string> GetFiltredSqlParametersInString(string source)
-		{
-			var matches = Regex.Matches(source, @"\@[^=<>\s\'\(\)\,]+");
-			foreach (var item in matches)
-			{
-				//ignoruju systémové proměné sql serveru jako @@IDENTITY
-				if (item.ToString().StartsWith("@@"))
-					continue;
-				yield return item.ToString();
-			}
-		}
-
-		private string GetCommandText(string fileName)
-		{
-			string name = ScriptsPath + "." + fileName;
-			Assembly assembly = null;
-			if (string.IsNullOrEmpty(NamespaceName))
-				assembly = Assembly.Load(ScriptsPath);
-
-
-			var vaf = assembly.GetManifestResourceStream(name);
-			if (vaf == null)
-				throw new ArgumentException("Požadovaný script nebyl nalezen.");
-
-			using (Stream strm = vaf)
-			using (StreamReader queryText = new StreamReader(strm))
-			{
-				return queryText.ReadToEnd();
-			}
-		}
-
-		/// <summary>
-		/// Vrátí text části který má být duplikován bez komentářů o duplikování
-		/// </summary>
-		/// <param name="commandText"></param>
-		/// <returns></returns>
-		private string GetRepeatingPart(string commandText)
-		{
-			string pattern = @"\/\*Repeating start\*\/[\s\S]*Repeating end\*\/";
-			var str = Regex.Match(commandText, pattern).Value;
-			//Regex regex = new Regex(pattern);
-
-			//Odeberu začáteční a koncový komentář
-			str = str.Remove(str.LastIndexOf(Environment.NewLine));
-			str = str.Substring(str.IndexOf(Environment.NewLine) + Environment.NewLine.Length);
-			return str.Trim();
-		}
-
-		private void ValidateFileContent(string fileContent)
-		{
-			throw new NotImplementedException();
+			this.sqlConnection = sqlConnection;
+			this.ScriptsPath = scriptsPath;
 		}
 
 		public void Dispose()
 		{
 			sqlConnection.Dispose();
 		}
-		#endregion
 	}
 }

@@ -78,3 +78,4 @@ csharp_style_throw_expression = true:suggestion
 #Nasledujici radek vypne zarovku pri použití explicitniho typu misto IDE0007
 csharp_style_var_for_built_in_types = false:none
 #csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_prefer_braces = false
