@@ -16,9 +16,10 @@ namespace SqlFileQueryLib.Test.WPF
 
 		internal object SelectScalar()
 		{
-			SqlCommand cmd = sqlFileQuery.CreateCommand("GetActivePublishers.sql");
+			SqlCommand cmd = sqlFileQuery.CreateCommand("SelectTable.sql");
 			sqlFileQuery.AddMultipleParameters(cmd, new[] { new { a = 1 }, new { a = 2 } });
-			throw new NotImplementedException();
+			var o = sqlFileQuery.ExecuteReader(cmd);
+			return o;
 		}
 
 		internal object SelectTable()

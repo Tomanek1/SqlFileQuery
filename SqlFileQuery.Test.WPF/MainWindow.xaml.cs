@@ -36,7 +36,7 @@ namespace SqlFileQueryLib.Test.WPF
 
 		private void Btn_SelectTable_Click(object sender, RoutedEventArgs e)
 		{
-			var n = sqlDirect.SelectTable();
+			var n = sqlDirectDemo.GetDemo();
 		}
 
 		private void Btb_SelectGrid_Click(object sender, RoutedEventArgs e)

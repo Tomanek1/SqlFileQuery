@@ -23,7 +23,7 @@ namespace SqlFileQueryLib.Test.WPF
 		public IEnumerable<object> GetDemo()
 		{
 			SqlCommand cmd = sqlFileQuery.CreateCommand("Demo.sql");
-			foreach (var n in sqlFileQuery.Execute(cmd))
+			foreach (var n in sqlFileQuery.ExecuteReader(cmd))
 			{
 				yield return new
 				{
@@ -41,7 +41,7 @@ namespace SqlFileQueryLib.Test.WPF
 		{
 			//TODO: Dodělat
 			SqlCommand cmd = sqlFileQuery.CreateCommand("Demo.sql");
-			foreach (var n in sqlFileQuery.Execute(cmd))
+			foreach (var n in sqlFileQuery.ExecuteReader(cmd))
 			{
 				yield return new
 				{
