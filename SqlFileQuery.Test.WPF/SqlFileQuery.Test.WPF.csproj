@@ -36,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SqlFileQueryLib">
+      <HintPath>..\..\SqlFileQuery2\SqlFileQuery.Lib\bin\Debug\netstandard2.0\SqlFileQueryLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -104,12 +107,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SqlFileQuery.Lib\SqlFileQuery.Lib.csproj">
-      <Project>{0131f4d2-f0b8-4a9d-90c8-aeb3f3510105}</Project>
-      <Name>SqlFileQuery.Lib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="SqlScripts\Demo.sql" />
     <EmbeddedResource Include="SqlScripts\BasicQueries\SelectScalar.sql" />
     <EmbeddedResource Include="SqlScripts\BasicQueries\SelectTable.sql" />
@@ -117,7 +114,7 @@
     <EmbeddedResource Include="SqlScripts\BasicQueries\InsertMultiple.sql" />
     <EmbeddedResource Include="SqlScripts\BasicQueries\Update.sql" />
     <EmbeddedResource Include="SqlScripts\BasicQueries\Delete.sql" />
-		<EmbeddedResource Include="DemoInRoot.sql" />
+    <EmbeddedResource Include="DemoInRoot.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

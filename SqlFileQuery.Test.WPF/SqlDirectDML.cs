@@ -16,15 +16,26 @@ namespace SqlFileQueryLib.Test.WPF
 
 		internal object SelectScalar()
 		{
-			SqlCommand cmd = sqlFileQuery.CreateCommand("SelectTable.sql");
+			var cmd = sqlFileQuery.CreateCommand("SelectTable.sql");
 			sqlFileQuery.AddMultipleParameters(cmd, new[] { new { a = 1 }, new { a = 2 } });
-			var o = sqlFileQuery.ExecuteReader(cmd);
+			var o = cmd.ExecuteReader(cmd);
+			foreach (var item in o)
+			{
+
+			}
 			return o;
 		}
 
 		internal object SelectTable()
 		{
-			throw new NotImplementedException();
+			var cmd = sqlFileQuery.CreateCommand("SelectTable.sql");
+			sqlFileQuery.AddMultipleParameters(cmd, new[] { new { @id =4 } });
+			var o = cmd.ExecuteReader(cmd);
+			foreach (var item in o)
+			{
+
+			}
+			return o;
 		}
 
 		internal object SelectGrid()
